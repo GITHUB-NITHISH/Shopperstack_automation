@@ -1,0 +1,17 @@
+{
+  "validCard": {
+    "number": "4242424242424242",
+    "expiry": "12/29",
+    "cvv": "123"
+  },
+  "invalidCard": {
+    "number": "1111222233334444",
+    "expiry": "01/20",
+    "cvv": "000"
+  },
+  "coupons": {
+    "valid": "SAVE10",
+    "expired": "EXPIRED2020",
+    "invalid": "NOTREAL"
+  }
+}

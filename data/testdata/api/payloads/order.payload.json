@@ -1,0 +1,12 @@
+{
+  "cardOrder": {
+    "addressId": 4501,
+    "paymentMethod": "CARD",
+    "items": [{ "productId": 5001, "quantity": 1, "size": "M", "color": "Blue" }]
+  },
+  "codOrder": {
+    "addressId": 4501,
+    "paymentMethod": "COD",
+    "items": [{ "productId": 5001, "quantity": 2 }]
+  }
+}

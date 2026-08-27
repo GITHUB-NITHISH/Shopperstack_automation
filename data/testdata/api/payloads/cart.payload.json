@@ -1,0 +1,5 @@
+{
+  "sampleProduct": { "productId": 5001, "quantity": 1, "size": "M", "color": "Blue" },
+  "bulkQuantity": { "productId": 5001, "quantity": 5, "size": "L", "color": "Red" },
+  "outOfStock":   { "productId": 9999, "quantity": 1 }
+}

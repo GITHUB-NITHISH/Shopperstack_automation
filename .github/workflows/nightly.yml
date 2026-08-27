@@ -1,0 +1,27 @@
+name: Nightly Regression
+on:
+  schedule:
+    - cron: '0 20 * * *'   # 8 PM UTC daily
+  workflow_dispatch: {}
+
+jobs:
+  regression:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20, cache: 'npm' }
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npx playwright test -c config/playwright.config.ts --grep @regression
+        env:
+          BASE_URL: ${{ secrets.BASE_URL || 'https://www.shoppersstack.com' }}
+          API_BASE_URL: ${{ secrets.API_BASE_URL || 'https://www.shoppersstack.com' }}
+          CUSTOMER_EMAIL: ${{ secrets.CUSTOMER_EMAIL }}
+          CUSTOMER_PASSWORD: ${{ secrets.CUSTOMER_PASSWORD }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: allure-results
+          path: reports/allure-results
+          retention-days: 14

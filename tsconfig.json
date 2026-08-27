@@ -1,0 +1,31 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "lib": ["ES2022", "DOM"],
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "declaration": false,
+    "sourceMap": true,
+    "outDir": "./dist",
+    "baseUrl": ".",
+    "paths": {
+      "@core/*": ["src/core/*"],
+      "@config/*": ["src/config/*"],
+      "@pages/*": ["src/ui/pages/*"],
+      "@locators/*": ["src/ui/locators/*"],
+      "@components/*": ["src/ui/components/*"],
+      "@api/*": ["src/api/*"],
+      "@fixtures/*": ["src/fixtures/*"],
+      "@utils/*": ["src/utils/*"],
+      "@data/*": ["data/*"]
+    },
+    "types": ["node", "@playwright/test"]
+  },
+  "include": ["src/**/*", "tests/**/*", "auth/**/*", "config/**/*", "data/**/*"],
+  "exclude": ["node_modules", "dist", "reports"]
+}

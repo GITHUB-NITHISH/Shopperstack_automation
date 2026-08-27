@@ -1,0 +1,6 @@
+{
+  "searchTerms": ["shoes", "shirt", "watch", "bag", "laptop"],
+  "invalidSearch": "zzzznotfound99",
+  "sortOptions": ["priceLowHigh", "priceHighLow", "newest", "rating"],
+  "priceRange": { "min": 500, "max": 2000 }
+}

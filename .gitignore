@@ -1,0 +1,38 @@
+# Node
+node_modules/
+npm-debug.log*
+
+# Playwright
+test-results/
+playwright-report/
+reports/
+traces/
+*.zip
+
+# Auth storage (secrets)
+auth/storage/
+*.storageState.json
+*.token.json
+
+# Env files
+config/env/.env
+config/env/.env.qa
+config/env/.env.dev
+config/env/.env.uat
+config/env/.env.prod
+!config/env/.env.example
+
+# IDE
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Allure
+allure-results/
+allure-report/
+
+# Build
+dist/
+coverage/

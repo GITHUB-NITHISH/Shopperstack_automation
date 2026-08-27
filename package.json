@@ -1,0 +1,49 @@
+{
+  "name": "shoppersstack-automation",
+  "version": "1.0.0",
+  "description": "Enterprise Playwright framework for ShoppersStack.com (UI + API)",
+  "private": true,
+  "scripts": {
+    "test": "playwright test",
+    "test:smoke": "playwright test --grep @smoke",
+    "test:regression": "playwright test --grep @regression",
+    "test:ui": "playwright test --project=ui",
+    "test:api": "playwright test --project=api",
+    "test:headed": "playwright test --headed",
+    "test:debug": "playwright test --debug",
+    "test:ui-mode": "playwright test --ui",
+    "codegen": "playwright codegen https://www.shoppersstack.com",
+    "report": "playwright show-report reports/html",
+    "report:allure": "allure generate reports/allure-results -o reports/allure-report --clean && allure open reports/allure-report",
+    "clean": "rimraf reports test-results playwright-report auth/storage",
+    "lint": "eslint . --ext .ts",
+    "format": "prettier --write .",
+    "typecheck": "tsc --noEmit",
+    "prepare": "husky || true"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.47.0",
+    "@types/node": "^20.11.0",
+    "typescript": "^5.4.0",
+    "ts-node": "^10.9.2",
+    "dotenv": "^16.4.5",
+    "zod": "^3.23.8",
+    "pino": "^9.0.0",
+    "pino-pretty": "^11.0.0",
+    "@faker-js/faker": "^8.4.1",
+    "allure-playwright": "^2.15.1",
+    "rimraf": "^5.0.5",
+    "eslint": "^8.57.0",
+    "@typescript-eslint/parser": "^7.7.0",
+    "@typescript-eslint/eslint-plugin": "^7.7.0",
+    "prettier": "^3.2.5",
+    "husky": "^9.0.11",
+    "lint-staged": "^15.2.2"
+  },
+  "lint-staged": {
+    "*.ts": [
+      "eslint --fix",
+      "prettier --write"
+    ]
+  }
+}
