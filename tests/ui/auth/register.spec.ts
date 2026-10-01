@@ -1,51 +1,86 @@
 import { uiTest as test, expect } from '@fixtures/ui.fixture';
 import { DataGenerator } from '@utils/DataGenerator';
+import registerData from '@data/testdata/ui/register.data.json';
+import type { SignupRole } from '@pages/RegisterPage';
+import { Messages } from '@core/constants/Messages';
+import { Tags } from '@core/constants/Tags';
 
-test.use({ storageState: { cookies: [], origins: [] } });
+/**
+ * Registration — creates a fresh user per test and asserts the signup contract.
+ *
+ * Login flow after registration is intentionally NOT tested here — it's covered
+ * by tests/ui/auth/login.spec.ts TC01 using deterministic credentials from
+ * data/testdata/ui/login.data.json. Keeping register scope tight isolates
+ * failures to the actual sign-up API/UI.
+ */
+test.describe(`${Tags.ui} ${Tags.auth} Register – ShoppersStack`, () => {
+  for (const cfg of registerData.roles) {
+    const role = cfg.role as SignupRole;
 
-test.describe('@ui @auth Register', () => {
-  test('TC01 @smoke Open Register page loads form', async ({ registerPage, page }) => {
-    await registerPage.open();
-    await expect(page.locator('input[type="email"]')).toBeVisible();
-  });
+    test(`TC01 ${Tags.smoke} [${role}] Register with faker data lands on success URL and shows toast`, async ({
+      registerPage}) => {
+      const user = DataGenerator.randomUser();
+      const payload = {
+        ...user,
+        confirmPassword: user.password,
+        country: registerData.location.country,
+        state:   registerData.location.state,
+        city:    registerData.location.city,
+      };
 
-  test('TC02 @regression Register with unique random user', async ({ registerPage }) => {
-    const u = DataGenerator.randomUser();
-    await registerPage.open();
-    await registerPage.register({ ...u, confirmPassword: u.password });
-    // Either success toast or redirect
-    expect(true).toBe(true);
-  });
+      await registerPage.open(cfg.signupUrl);
+      await registerPage.register(payload, {
+        hasTerms: cfg.hasTerms,
+        requiresLocation: cfg.requiresLocation,
+      });
 
-  test('TC03 @regression Register with mismatched passwords fails', async ({ registerPage }) => {
-    const u = DataGenerator.randomUser();
-    await registerPage.open();
-    await registerPage.register({ ...u, confirmPassword: 'Mismatch@123' });
-    const err = await registerPage.getErrorText().catch(() => '');
-    expect(err.length >= 0).toBeTruthy();
-  });
+      await registerPage.expectUrl( new RegExp(cfg.successUrlPattern),
+        `${role} registration should navigate away from signup`);
 
-  test('TC04 @regression Register with existing email fails', async ({ registerPage }) => {
-    await registerPage.open();
-    await registerPage.register({
-      firstName: 'Thiru', lastName: 'Kumar', email: 'thiru04102031@gmail.com',
-      phoneNumber: '9876543210', password: 'Thiru2001@', confirmPassword: 'Thiru2001@',
+      expect(await registerPage.getSuccessText(), `${role} success toast`)
+        .toBe(Messages.register.successToast[role]);
     });
-    // Duplicate email should not redirect to success
-    expect(true).toBe(true);
+  }
+
+  test(`TC02 ${Tags.regression} Register button stays disabled when passwords do not match`, async ({ registerPage }) => {
+    const cfg = registerData.roles[0]; // shopper
+    const user = DataGenerator.randomUser();
+    await registerPage.open(cfg.signupUrl);
+    await registerPage.register(
+      { ...user, confirmPassword: 'Mismatch@123' },
+      { hasTerms: cfg.hasTerms, requiresLocation: cfg.requiresLocation, skipSubmit: true },
+    );
+    await expect(registerPage.submitButton(), 'Register button should be disabled on password mismatch').toBeDisabled();
   });
 
-  test('TC05 @regression Register with invalid phone number', async ({ registerPage }) => {
-    const u = DataGenerator.randomUser();
-    await registerPage.open();
-    await registerPage.register({ ...u, phoneNumber: '123', confirmPassword: u.password });
-    expect(true).toBe(true);
+  test(`TC03 ${Tags.regression} Register with existing email shows duplicate toast`, async ({ registerPage }) => {
+    const cfg = registerData.roles[0];
+    await registerPage.open(cfg.signupUrl);
+    await registerPage.register(
+      {
+        firstName: 'Thiru',
+        lastName:  'Kumar',
+        email:     registerData.duplicate.email,
+        phoneNumber: DataGenerator.randomPhone(),
+        password:  registerData.duplicate.password,
+        confirmPassword: registerData.duplicate.password,
+      },
+      { hasTerms: cfg.hasTerms, requiresLocation: cfg.requiresLocation, skipSubmit: true },
+    );
+    await expect(registerPage.submitButton(), 'Register button should be enabled with valid inputs').toBeEnabled();
+    await registerPage.clickSubmit();
+    expect(await registerPage.getErrorText(), 'duplicate email toast').toBe(Messages.register.duplicateEmail);
+    await registerPage.expectUrl(new RegExp(cfg.signupUrl.replace('/', '')));
   });
 
-  test('TC06 @regression Register with empty required fields blocks submit', async ({ registerPage, page }) => {
-    await registerPage.open();
-    await page.getByRole('button', { name: /register|sign up/i }).click();
-    // Stay on same page
-    await expect(page).toHaveURL(/signup|register/i);
+  test(`TC04 ${Tags.regression} Register button stays disabled for invalid phone number`, async ({ registerPage }) => {
+    const cfg = registerData.roles[0];
+    const user = DataGenerator.randomUser();
+    await registerPage.open(cfg.signupUrl);
+    await registerPage.register(
+      { ...user, phoneNumber: registerData.invalidPhone, confirmPassword: user.password },
+      { hasTerms: cfg.hasTerms, requiresLocation: cfg.requiresLocation, skipSubmit: true },
+    );
+    await expect(registerPage.submitButton(), 'Register button should be disabled for invalid phone').toBeDisabled();
   });
 });

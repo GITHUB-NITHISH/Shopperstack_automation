@@ -3,6 +3,12 @@ import { BasePage } from '@core/BasePage';
 import { resolveWithFallback } from '@locators/_helpers';
 import { CartLocators } from '@locators/cart.locators';
 
+/**
+ * ShoppersStack Cart page (/cart).
+ *
+ * Extracts the four "price details" values from the right-hand panel and drives
+ * the [Buy Now] / [Continue Shopping] actions.
+ */
 export class CartPage extends BasePage {
   constructor(page: Page) { super(page); }
 
@@ -18,7 +24,7 @@ export class CartPage extends BasePage {
 
   async removeFirstItem(): Promise<void> {
     await test.step('Remove first cart item', async () => {
-      await this.click(resolveWithFallback(this.page, CartLocators.removeButton).first(), 'Remove');
+      await this.click(resolveWithFallback(this.page, CartLocators.removeButton).first(), 'remove');
     });
   }
 
@@ -30,22 +36,34 @@ export class CartPage extends BasePage {
     await this.click(resolveWithFallback(this.page, CartLocators.qtyMinus).first(), 'Qty -');
   }
 
-  async applyCoupon(code: string): Promise<void> {
-    await test.step(`Apply coupon ${code}`, async () => {
-      await this.fill(resolveWithFallback(this.page, CartLocators.couponInput), code, 'coupon');
-      await this.click(resolveWithFallback(this.page, CartLocators.applyCouponBtn), 'Apply');
+  // ---- Price-details panel ---------------------------------------------------
+
+  async getActualPriceText(): Promise<string>    { return this.getText(resolveWithFallback(this.page, CartLocators.actualPriceHeading)); }
+  async getDiscountPriceText(): Promise<string>  { return this.getText(resolveWithFallback(this.page, CartLocators.discountPriceHeading)); }
+  async getDeliveryChargesText(): Promise<string>{ return this.getText(resolveWithFallback(this.page, CartLocators.deliveryChargesHeading)); }
+  async getTotalPriceText(): Promise<string>     { return this.getText(resolveWithFallback(this.page, CartLocators.totalPriceHeading)); }
+
+  /** Parses the trailing '₹<amount>' from a heading like 'Total Price ₹1234'. */
+  static parseAmount(text: string): number {
+    const m = text.match(/₹\s*([0-9,]+)/);
+    return m ? Number(m[1].replace(/,/g, '')) : NaN;
+  }
+
+  async clickBuyNow(): Promise<void> {
+    await test.step('Click Buy Now', async () => {
+      await this.click(resolveWithFallback(this.page, CartLocators.buyNowButton), 'Buy Now');
     });
   }
 
-  async getSubtotal(): Promise<string> {
-    return await this.getText(resolveWithFallback(this.page, CartLocators.subtotal));
-  }
-
-  async proceedToCheckout(): Promise<void> {
-    await test.step('Proceed to Checkout', async () => {
-      await this.click(resolveWithFallback(this.page, CartLocators.checkoutButton), 'Checkout');
+  async clickContinueShopping(): Promise<void> {
+    await test.step('Click Continue Shopping', async () => {
+      await this.click(resolveWithFallback(this.page, CartLocators.continueShoppingBtn), 'Continue Shopping');
     });
   }
+
+  // Legacy alias so existing tests keep compiling.
+  async proceedToCheckout(): Promise<void> { await this.clickBuyNow(); }
+  async getSubtotal(): Promise<string> { return this.getTotalPriceText(); }
 
   async isEmpty(): Promise<boolean> {
     return await this.isVisible(resolveWithFallback(this.page, CartLocators.emptyCartMsg));

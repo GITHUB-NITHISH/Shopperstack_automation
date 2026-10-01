@@ -1,41 +1,69 @@
 import { apiTest as test, expect } from '@fixtures/api.fixture';
-import loginData from '@data/testdata/ui/login.data.json';
+import payloads from '@data/testdata/api/payloads/login.payload.json';
+import { ApiMessages } from '@core/constants/ApiMessages';
+import {
+  validateStatus,
+  validateStatusText,
+  validateError,
+  validateSchema,
+  validateEmptyBody,
+  validateResponseTime,
+} from '@utils/apiValidators';
+import { LoginSuccessSchema } from '@api/schemas/common.schema';
 
-test.describe('@api @auth Auth API', () => {
-  test('TC01 @smoke Login with valid credentials returns token', async ({ authApi }) => {
-    const res = await authApi.login(loginData.valid, [200, 201, 400, 401, 404]);
-    expect(res).toBeDefined();
-    if (res?.data?.token) expect(res.data.token.length).toBeGreaterThan(10);
+// Verified via DevTools capture: POST /shopping/users/login with { email, password, role }.
+// Role must be one of: SHOPPER | MERCHANT | ADMIN.
+
+test.describe('@api @auth Login API', () => {
+  test('TC01 @smoke Valid shopper login returns 200 with jwtToken', async ({ authApi }) => {
+    const res = await authApi.login(payloads.shopper.validShopper);
+    validateStatus(res, 200);
+
+    const body = await res.json();
+    console.log('Login response:', JSON.stringify(body, null, 2));
+
+    validateSchema(body, LoginSuccessSchema);
+    expect.soft(body.data).toMatchObject({
+      email: payloads.shopper.validShopper.email,
+      role: 'SHOPPER',
+    });
+    // Token is now cached in authApi + persisted for downstream specs.
+    expect.soft(authApi.getToken(), 'JWT should be cached on AuthApi').toBeTruthy();
   });
 
-  test('TC02 @regression Login with invalid password returns 4xx', async ({ authApi }) => {
-    const raw = await authApi.raw('post', '/api/customer/login', { data: loginData.invalidPassword });
-    expect([200, 400, 401, 403, 404, 422]).toContain(raw.status());
+  test('TC02 @regression Invalid password returns 400 BAD_REQUEST', async ({ authApi }) => {
+    const res = await authApi.login(payloads.shopper.invalidPassword);
+    validateStatus(res, 400);
+    // validateStatusText(res, ApiMessages.StatusText.BadRequest);
+    validateError(await res.json(), 400, ApiMessages.BAD_REQUEST, ApiMessages.Errors.WRONG_CREDENTIALS);
   });
 
-  test('TC03 @regression Login with unknown email returns 4xx', async ({ authApi }) => {
-    const raw = await authApi.raw('post', '/api/customer/login', { data: loginData.unknownEmail });
-    expect([200, 400, 401, 403, 404, 422]).toContain(raw.status());
+  test('TC03 @regression Unknown email returns 401 UNAUTHORIZED', async ({ authApi }) => {
+    const res = await authApi.login(payloads.shopper.unknownEmail);
+    validateStatus(res, 401);
+    // validateStatusText(res, ApiMessages.StatusText.Unauthorized);
+    validateError(await res.json(), 401, ApiMessages.UNAUTHORIZED, ApiMessages.Errors.WRONG_CREDENTIALS);
   });
 
-  test('TC04 @regression Login with empty body returns 4xx', async ({ authApi }) => {
-    const raw = await authApi.raw('post', '/api/customer/login', { data: {} });
-    expect([400, 401, 422, 404]).toContain(raw.status());
+  test('TC04 @regression Empty body returns 400 with no response body', async ({ authApi }) => {
+    const res = await authApi.login(undefined);
+    validateStatus(res, 400);
+    await validateEmptyBody(res);
   });
 
-  test('TC05 @regression Login with invalid email format returns 4xx', async ({ authApi }) => {
-    const raw = await authApi.raw('post', '/api/customer/login', { data: loginData.invalidEmailFormat });
-    expect([400, 401, 404, 422]).toContain(raw.status());
+  test('TC05 @regression Invalid email format returns 401 UNAUTHORIZED', async ({ authApi }) => {
+    const res = await authApi.login(payloads.shopper.invalidEmailFormat);
+    validateStatus(res, 401);
+    // validateStatusText(res, ApiMessages.StatusText.Unauthorized);
+    validateError(await res.json(), 401, ApiMessages.UNAUTHORIZED, ApiMessages.Errors.WRONG_CREDENTIALS);
   });
 
-  test('TC06 @regression Forgot password endpoint accepts email', async ({ authApi }) => {
-    const raw = await authApi.raw('post', '/api/customer/forgot-password', { data: { email: loginData.valid.email } });
-    expect([200, 202, 400, 404]).toContain(raw.status());
-  });
-
-  test('TC07 @regression Response time under 3s for login', async ({ authApi }) => {
+  test('TC06 @regression @performance Login response time under 3s', async ({ authApi }) => {
     const start = Date.now();
-    await authApi.raw('post', '/api/customer/login', { data: loginData.valid });
-    expect(Date.now() - start).toBeLessThan(5000);
+    await authApi.login(payloads.shopper.validShopper);
+    const duration = Date.now() - start;
+    console.log('Duration  :', duration);
+    validateResponseTime(duration,3000, {label: 'Login API'});
   });
 });
+

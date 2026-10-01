@@ -1,0 +1,9 @@
+{
+  "updateProfile": {
+    "phone": "9876500011"
+  },
+  "changePassword": {
+    "newPassword": "Thiru2001@New"
+  },
+  "invalidPhone": "12"
+}

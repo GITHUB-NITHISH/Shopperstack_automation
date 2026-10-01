@@ -1,57 +1,68 @@
 import { uiTest as test, expect } from '@fixtures/ui.fixture';
 import loginData from '@data/testdata/ui/login.data.json';
+import { Messages } from '@core/constants/Messages';
+import { Tags } from '@core/constants/Tags';
+import { UrlPatterns } from '@core/constants/UrlPatterns';
+import type { UserRole } from '@pages/LoginPage';
 
-// Login runs unauthenticated — clear the storage state
-test.use({ storageState: { cookies: [], origins: [] } });
-
-test.describe('@ui @auth Login', () => {
-  test('TC01 @smoke Login with valid credentials', async ({ loginPage }) => {
+test.describe(`${Tags.ui} ${Tags.auth} Login – ShoppersStack`, () => {
+  test.beforeEach(async ({ loginPage }) => {
     await loginPage.open();
-    await loginPage.login(loginData.valid.email, loginData.valid.password);
-    expect(await loginPage.isLoggedIn()).toBeTruthy();
   });
 
-  test('TC02 @regression Login with invalid password shows error', async ({ loginPage }) => {
-    await loginPage.open();
-    await loginPage.login(loginData.invalidPassword.email, loginData.invalidPassword.password);
-    const err = await loginPage.getErrorMessage();
-    expect(err.length).toBeGreaterThan(0);
+  for (const cfg of loginData.validByRole) {
+    const role = cfg.role as UserRole;
+
+    test(`TC01 ${Tags.smoke} [${role}] Valid login navigates to role home`, async ({ loginPage }) => {
+      await loginPage.login(cfg.email, cfg.password, role);
+      await loginPage.expectUrl(new RegExp(cfg.successUrl), `${role} should land on its home URL`);
+      expect(await loginPage.isLoggedIn(), `Expected user to be logged in as '${role}'`).toBe(true);
+    });
+  }
+
+  test(`TC02 ${Tags.regression} Shopper login with invalid password shows error`, async ({ loginPage }) => {
+    await loginPage.login(loginData.invalidPassword.email, loginData.invalidPassword.password, 'shopper');
+    expect(await loginPage.getErrorMessage()).toBe(Messages.login.invalidCredError);
   });
 
-  test('TC03 @regression Login with unknown email shows error', async ({ loginPage }) => {
-    await loginPage.open();
-    await loginPage.login(loginData.unknownEmail.email, loginData.unknownEmail.password);
-    expect(await loginPage.getErrorMessage()).not.toBe('');
+  test(`TC03 ${Tags.regression} Login page exposes three role tabs`, async ({ loginPage }) => {
+    await loginPage.expectAllRoleTabsVisible();
   });
 
-  test('TC04 @regression Login with invalid email format blocks submit', async ({ loginPage, page }) => {
-    await loginPage.open();
-    await loginPage.login(loginData.invalidEmailFormat.email, loginData.invalidEmailFormat.password);
-    // Native email validation or app error
-    expect(page.url()).toContain('login');
+  for (const role of ['merchant', 'admin'] as const) {
+    test(`TC04 ${Tags.regression} Switching to ${role} tab reveals its own form`, async ({ loginPage }) => {
+      await loginPage.selectRole(role);
+      await loginPage.expectRoleFormVisible(role);
+    });
+  }
+
+  test(`TC06 ${Tags.regression} Password field is masked by default and can be toggled`, async ({ loginPage }) => {
+    await loginPage.fillPassword('Thiru2001@');
+    await expect(loginPage.passwordField(), 'password type before toggle').toHaveAttribute('type', 'password');
+    await loginPage.togglePasswordVisibility();
+    await expect(loginPage.passwordField(), 'password type after toggle').toHaveAttribute('type', 'text');
   });
 
-  test('TC05 @regression Login with empty fields blocks submit', async ({ loginPage, page }) => {
-    await loginPage.open();
-    await loginPage.login('', '');
-    expect(page.url()).toContain('login');
+  test(`TC07 ${Tags.regression} Forgot Password? label is present on every tab`, async ({ loginPage }) => {
+    for (const role of ['shopper', 'merchant', 'admin'] as const) {
+      await loginPage.selectRole(role);
+      await loginPage.expectForgotPasswordVisible();
+    }
   });
 
-  test('TC06 @regression Password field masks input', async ({ loginPage, page }) => {
-    await loginPage.open();
-    const pw = page.locator('input[type="password"]').first();
-    await pw.fill('Secret@123');
-    await expect(pw).toHaveAttribute('type', 'password');
+  test(`TC08 ${Tags.regression} "Create Account" navigates to the correct signup URL for all roles`, async ({ loginPage }) => {
+    for (const { role, urlPattern } of loginData.signupUrlByRole) {
+      await test.step(`Verify Create Account URL for ${role}`, async () => {
+        await loginPage.open();
+        await loginPage.selectRole(role as UserRole);
+        await loginPage.clickCreateAccount();
+        await loginPage.expectUrl(new RegExp(urlPattern), `Create Account URL mismatch for ${role}`);
+      });
+    }
   });
 
-  test('TC07 @regression Forgot Password link is present', async ({ loginPage, page }) => {
-    await loginPage.open();
-    await expect(page.getByText(/forgot password/i).first()).toBeVisible();
-  });
-
-  test('TC08 @regression Register link navigates to signup', async ({ loginPage, page }) => {
-    await loginPage.open();
-    await page.getByText(/register|sign up/i).first().click();
-    await expect(page).toHaveURL(/signup|register/i);
+  test(`TC09 ${Tags.regression} Empty submit stays on /user-signin`, async ({ loginPage }) => {
+    await loginPage.clickLogin();
+    await loginPage.expectUrl(UrlPatterns.userSignin);
   });
 });

@@ -2,6 +2,43 @@
 
 Enterprise Playwright automation for **https://www.shoppersstack.com** covering **UI + API** functional tests using advanced Playwright features and TypeScript.
 
+The framework was reverse-engineered directly from the live shoppersstack.com UI
+using the Playwright MCP, so every locator, URL and page-object action mirrors
+what the site actually renders.
+
+## 👤 Roles supported
+
+ShoppersStack exposes three distinct roles behind a single vertical-tab login at
+`/user-signin` — the framework has first-class support for all three:
+
+| Role     | Login tab        | Signup route        | Fixture / test tag |
+| -------- | ---------------- | ------------------- | ------------------ |
+| Shopper  | `Shopper Login`  | `/customer-signup`  | `@shopper`         |
+| Merchant | `Merchant Login` | `/urlhelper`        | `@merchant`        |
+| Admin    | `Admin Login`    | `/admin-signup`     | `@admin`           |
+
+Use `loginPage.login(email, password, 'shopper' \| 'merchant' \| 'admin')`.
+
+## 🔓 Guest vs 🔐 Shopper capability matrix
+
+| Capability                                     | Guest | Shopper |
+| ---------------------------------------------- | :---: | :-----: |
+| View home banner & welcome heading             | ✅ | ✅ |
+| Browse top-nav categories (Men/Women/Kids/…)   | ✅ | ✅ |
+| View Featured Products grid + pagination       | ✅ | ✅ |
+| Open the header "Login" button                 | ✅ | — |
+| Category-scoped header search combobox         | ❌ | ✅ |
+| "Hello, <NAME>" greeting in header             | ❌ | ✅ |
+| Cart badge with live item count                | ❌ | ✅ |
+| Account settings menu (7 items)                | ❌ | ✅ |
+| — My Profile / Cart / Wish List / My Orders    | ❌ | ✅ |
+| — My Wallet / My Likes / Logout                | ❌ | ✅ |
+| Add to Cart / Buy Now / Place Order            | ❌ | ✅ |
+
+Guest tests live in `tests/ui/guest`; authenticated shopper tests live in
+`tests/ui/shopper` (they consume the `customer.storageState.json` produced by
+the `setup:ui` project).
+
 ## 🧱 Stack
 - Playwright (TS) — `@playwright/test`
 - Zod — env & response validation

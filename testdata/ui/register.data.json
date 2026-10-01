@@ -1,0 +1,30 @@
+{
+  "roles": [
+    {
+      "role": "shopper",
+      "signupUrl": "/signup",
+      "requiresLocation": false,
+      "hasTerms": true,
+      "loginUrl": "/user-signin",
+      "successUrlPattern": "^https://www\\.shoppersstack\\.com/?$"
+    },
+    {
+      "role": "admin",
+      "signupUrl": "/admin-signup",
+      "requiresLocation": true,
+      "hasTerms": false,
+      "loginUrl": "/admin-signup",
+      "successUrlPattern": "^https://www\\.shoppersstack\\.com/?$"
+    }
+  ],
+  "duplicate": {
+    "email": "thiru04102031@gmail.com",
+    "password": "Thiru2001@"
+  },
+  "invalidPhone": "123",
+  "location": {
+    "country": "India",
+    "state": "Tamil Nadu",
+    "city": "Chennai"
+  }
+}

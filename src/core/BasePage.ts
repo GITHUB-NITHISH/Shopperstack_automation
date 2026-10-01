@@ -47,6 +47,11 @@ export abstract class BasePage {
     await this.page.waitForURL(url, { timeout });
   }
 
+  /** Assert the current page URL matches `pattern`. Keeps specs `page`-free. */
+  async expectUrl(pattern: string | RegExp, message?: string): Promise<void> {
+    await expect(this.page, message).toHaveURL(pattern);
+  }
+
   async reload(): Promise<void> {
     await this.page.reload({ waitUntil: 'domcontentloaded' });
   }

@@ -1,43 +1,43 @@
-name: CI
-on:
-  pull_request:
-    branches: [main, develop]
-  push:
-    branches: [main, develop]
+  name: CI
+  on:
+    pull_request:
+      branches: [main, develop]
+    push:
+      branches: [main, develop]
 
-jobs:
-  test:
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        shard: [1, 2]
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: 'npm'
-      - name: Install deps
-        run: npm ci
-      - name: Install Playwright browsers
-        run: npx playwright install --with-deps chromium
-      - name: Type check
-        run: npm run typecheck
-      - name: Lint
-        run: npm run lint || true
-      - name: Run smoke tests (shard ${{ matrix.shard }}/2)
-        run: npx playwright test -c config/playwright.config.ts --grep @smoke --shard=${{ matrix.shard }}/2
-        env:
-          BASE_URL: ${{ secrets.BASE_URL || 'https://www.shoppersstack.com' }}
-          API_BASE_URL: ${{ secrets.API_BASE_URL || 'https://www.shoppersstack.com' }}
-          CUSTOMER_EMAIL: ${{ secrets.CUSTOMER_EMAIL }}
-          CUSTOMER_PASSWORD: ${{ secrets.CUSTOMER_PASSWORD }}
-          TEST_ENV: qa
-      - name: Upload HTML report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: html-report-${{ matrix.shard }}
-          path: reports/html
-          retention-days: 7
+  jobs:
+    test:
+      runs-on: ubuntu-latest
+      strategy:
+        fail-fast: false
+        matrix:
+          shard: [1, 2]
+      steps:
+        - uses: actions/checkout@v4
+        - uses: actions/setup-node@v4
+          with:
+            node-version: 20
+            cache: 'npm'
+        - name: Install deps
+          run: npm ci
+        - name: Install Playwright browsers
+          run: npx playwright install --with-deps chromium
+        - name: Type check
+          run: npm run typecheck
+        - name: Lint
+          run: npm run lint || true
+        - name: Run smoke tests (shard ${{ matrix.shard }}/2)
+          run: npx playwright test -c config/playwright.config.ts --grep @smoke --shard=${{ matrix.shard }}/2
+          env:
+            BASE_URL: ${{ secrets.BASE_URL || 'https://www.shoppersstack.com' }}
+            API_BASE_URL: ${{ secrets.API_BASE_URL || 'https://www.shoppersstack.com' }}
+            CUSTOMER_EMAIL: ${{ secrets.CUSTOMER_EMAIL }}
+            CUSTOMER_PASSWORD: ${{ secrets.CUSTOMER_PASSWORD }}
+            TEST_ENV: qa
+        - name: Upload HTML report
+          if: always()
+          uses: actions/upload-artifact@v4
+          with:
+            name: html-report-${{ matrix.shard }}
+            path: reports/html
+            retention-days: 7

@@ -1,0 +1,11 @@
+{
+  "shopper" : {
+  "validShopper":  { "email": "thiru04102031@gmail.com", "password": "Thiru2001@", "role": "SHOPPER" },
+  "invalidPassword": { "email": "thiru04102031@gmail.com", "password": "WrongPass@1", "role": "SHOPPER" },
+  "unknownEmail":  { "email": "no.such.user@mailinator.com", "password": "Any@1234", "role": "SHOPPER" },
+  "invalidEmailFormat": { "email": "not-an-email", "password": "Any@1234", "role": "SHOPPER" }
+  },
+  "merchant" : {
+
+  }
+}

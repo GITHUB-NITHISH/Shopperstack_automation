@@ -1,0 +1,31 @@
+{
+  "valid": {
+    "email": "thiru04102031@gmail.com",
+    "password": "Thiru2001@"
+  },
+  "validByRole": [
+    { "role": "shopper",  "email": "thiru04102031@gmail.com", "password": "Thiru2001@", "successUrl": "https://www.shoppersstack.com" },
+    { "role": "admin",    "email": "qa_17567892349a.kuhic24@gmail.com",    "password": "Pas2775#1",    "successUrl": "https://www.shoppersstack.com" }
+  ],
+  "invalidPassword": {
+    "email": "thiru04102031@gmail.com",
+    "password": "WrongPass@1"
+  },
+  "unknownEmail": {
+    "email": "no.such.user@mailinator.com",
+    "password": "Any@1234"
+  },
+  "invalidEmailFormat": {
+    "email": "not-an-email",
+    "password": "Any@1234"
+  },
+  "empty": {
+    "email": "",
+    "password": ""
+  },
+  "signupUrlByRole": [
+    { "role": "shopper",  "urlPattern": "/signup$" },
+    { "role": "merchant", "urlPattern": "/urlhelper$" },
+    { "role": "admin",    "urlPattern": "/admin-signup$" }
+  ]
+}

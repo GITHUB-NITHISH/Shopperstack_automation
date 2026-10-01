@@ -1,19 +1,30 @@
 import { LocatorDef } from './_helpers';
 
+/**
+ * Product Detail Page — opened when a shopper clicks a product card in a listing.
+ * Surfaces: product image, brand + name, star rating, discounted / original price + % off,
+ * quantity selector, [add to cart], [Buy Now], [Add to Wish List] and [Like] (heart).
+ */
 export const ProductDetailLocators: Record<string, LocatorDef[]> = {
-  productTitle:    [{ engine: 'css', value: 'h1.product-title, h1' }],
-  productPrice:    [{ engine: 'css', value: '.product-price, .final-price' }],
-  productImage:    [{ engine: 'css', value: '.product-image img, .gallery-main img' }],
-  sizeSelector:    [{ engine: 'css', value: '.size-option, select[name="size"]' }],
-  colorSelector:   [{ engine: 'css', value: '.color-option' }],
-  quantityInput:   [{ engine: 'css', value: 'input[name="quantity"]' }],
-  qtyPlus:         [{ engine: 'css', value: '.qty-plus, button[aria-label="Increase"]' }],
-  qtyMinus:        [{ engine: 'css', value: '.qty-minus, button[aria-label="Decrease"]' }],
-  addToCartButton: [{ engine: 'role', value: 'button', roleOptions: { name: /add to cart/i } }],
-  buyNowButton:    [{ engine: 'role', value: 'button', roleOptions: { name: /buy now/i } }],
-  addToWishlist:   [{ engine: 'role', value: 'button', roleOptions: { name: /wishlist/i } }],
-  descriptionTab:  [{ engine: 'text', value: 'Description' }],
-  reviewsTab:      [{ engine: 'text', value: 'Reviews' }],
-  ratingValue:     [{ engine: 'css', value: '.rating-value, .star-rating' }],
-  outOfStockLabel: [{ engine: 'text', value: 'Out of Stock' }],
+  productTitle:         [{ engine: 'css', value: 'h1, h2, h3' }],
+  productBrand:         [{ engine: 'css', value: '[class*="brand" i]' }],
+  productPrice:         [{ engine: 'css', value: 'p:has-text("₹") span:nth-child(1)' }],
+  productOriginalPrice: [{ engine: 'css', value: 'p:has-text("₹") span:nth-child(2)' }],
+  productDiscountPct:   [{ engine: 'css', value: 'p:has-text("₹") span:nth-child(3)' }],
+  productImage:         [{ engine: 'css', value: 'img[alt]' }],
+  ratingValue:          [{ engine: 'css', value: '[aria-label*="Star" i]' }],
+  quantityInput:        [{ engine: 'role', value: 'spinbutton', roleOptions: { name: /quantity|qty/i } }],
+  qtyPlus:              [{ engine: 'role', value: 'button', roleOptions: { name: /increase|\+/ } }],
+  qtyMinus:             [{ engine: 'role', value: 'button', roleOptions: { name: /decrease|-/ } }],
+  addToCartButton:      [{ engine: 'role', value: 'button', roleOptions: { name: /add to cart/i } }],
+  buyNowButton:         [{ engine: 'role', value: 'button', roleOptions: { name: /buy now/i } }],
+  addToWishlist:        [{ engine: 'role', value: 'button', roleOptions: { name: /wish list|wishlist/i } }],
+  likeButton:           [{ engine: 'role', value: 'button', roleOptions: { name: /like/i } }],
+  descriptionTab:       [{ engine: 'text', value: 'Description' }],
+  reviewsTab:           [{ engine: 'text', value: 'Reviews' }],
+  outOfStockLabel:      [{ engine: 'text', value: 'Out of Stock' }],
+
+  // Legacy
+  sizeSelector:         [{ engine: 'css', value: '.size-option, select[name="size"]' }],
+  colorSelector:        [{ engine: 'css', value: '.color-option' }],
 };

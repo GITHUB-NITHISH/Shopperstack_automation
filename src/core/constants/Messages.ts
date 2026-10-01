@@ -1,11 +1,15 @@
 export const Messages = {
   login: {
-    invalidCreds: 'Invalid email or password',
-    success: 'Login Successful',
+    invalidCredError: 'Given user ID or password is wrong',
+    // success: 'Login Successful',
   },
   register: {
-    success: 'Registration successful',
-    duplicateEmail: 'Email already exists',
+    successToast: {
+        shopper: 'Successfully Registered',
+        admin: 'Profile Created Successfully',
+        merchant: 'Merchant Registered Successfully',
+    },
+    duplicateEmail: 'Given Email ID or Phone number already used',
   },
   cart: {
     added: 'Item added to cart',

@@ -26,6 +26,6 @@
     },
     "types": ["node", "@playwright/test"]
   },
-  "include": ["src/**/*", "tests/**/*", "auth/**/*", "config/**/*", "data/**/*"],
+  "include": ["src/**/*", "tests/**/*", "config/**/*", "config/**/*", "data/**/*", "playwright.config.ts"],
   "exclude": ["node_modules", "dist", "reports"]
 }
